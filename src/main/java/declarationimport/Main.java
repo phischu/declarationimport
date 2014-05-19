@@ -12,6 +12,10 @@ import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.*;
 import org.neo4j.tooling.GlobalGraphOperations;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+
 
 
 public class Main {
@@ -71,6 +75,23 @@ public class Main {
 	}
 	
 	public static void insertModule(GraphDatabaseService graphDb,Node packagenode,File modulepath){
+		
+		Gson gson = new Gson();
+		
+
+		
+		try {
+			Collection<Declaration> declarations = gson.fromJson(new FileReader(modulepath), declarations.getClass());
+		} catch (JsonSyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonIOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		System.out.println(modulepath.getPath());
 		
