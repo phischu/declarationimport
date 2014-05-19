@@ -18,9 +18,18 @@ public class Main {
 	
 	private static final String DB_PATH = "data";
 	
+	public enum Labels implements Label
+	{
+		Package,
+		Declaration,
+		Symbol
+    }
+	
 	private static enum RelationshipTypes implements RelationshipType
 	{
-	    DEPENDENCY
+	    DECLARATION,
+	    MENTIONEDSYMBOL,
+	    DECLAREDSYMBOL
 	}
 
 	public static void main(String[] args){
@@ -30,7 +39,7 @@ public class Main {
 		Transaction tx = graphDb.beginTx();
 		 try
 		 {
-			 insertPackage("containers","0.5.5.1");
+			 insertPackage(graphDb,"containers","0.5.5.1");
 			 			 
 		     tx.success();
 		 }
@@ -44,7 +53,11 @@ public class Main {
 		System.out.println("success");
 	}
 	
-	public static void insertPackage(String packagename,String versionnumber){
+	public static void insertPackage(GraphDatabaseService graphDb,String packagename,String versionnumber){
+		
+	    Node packagenode = graphDb.createNode(Labels.Package);
+	    packagenode.setProperty("packagename",packagename);
+	    packagenode.setProperty("versionnumber",versionnumber);
 		
 		File packagepath = new File("packages/" + packagename + "-" + versionnumber + "/");
 		
@@ -52,12 +65,14 @@ public class Main {
 				FileUtils.listFiles(packagepath,new SuffixFileFilter(".declarations"),TrueFileFilter.INSTANCE);
 		
 		for(File modulefile : modulefiles){
-			System.out.println(modulefile.getPath());
+			insertModule(graphDb,packagenode,modulefile);
 		}
 		
 	}
 	
-	public static void insertModule(String path){
+	public static void insertModule(GraphDatabaseService graphDb,Node packagenode,File modulepath){
+		
+		System.out.println(modulepath.getPath());
 		
 	}
 
