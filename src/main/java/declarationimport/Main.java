@@ -1,5 +1,6 @@
 package declarationimport;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.io.*;
@@ -7,6 +8,7 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import java.io.*;
+import java.lang.reflect.Type;
 
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.*;
@@ -15,6 +17,7 @@ import org.neo4j.tooling.GlobalGraphOperations;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 
 
@@ -78,22 +81,16 @@ public class Main {
 		
 		Gson gson = new Gson();
 		
+		Type declarationsType = new TypeToken<Collection<Declaration>>(){}.getType();
 
-		
-		try {
-			Collection<Declaration> declarations = gson.fromJson(new FileReader(modulepath), declarations.getClass());
-		} catch (JsonSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonIOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		System.out.println(modulepath.getPath());
+			ArrayList<Declaration> declarations;
+			try {
+				declarations = gson.fromJson(new FileReader(modulepath), declarationsType);
+	            System.out.println(declarations);
+			} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+				e.printStackTrace();
+			}
+
 		
 	}
 
