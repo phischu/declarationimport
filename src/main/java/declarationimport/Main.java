@@ -83,19 +83,18 @@ public class Main {
 		
 		Type declarationsType = new TypeToken<Collection<Declaration>>(){}.getType();
 
-			ArrayList<Declaration> declarations;
-			try {
-				
-				declarations = gson.fromJson(new FileReader(modulepath), declarationsType);
-	            for(Declaration declaration : declarations){
-	            	insertDeclaration(graphDb, packagenode, declaration);
-	            }
-	            
-			} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
-				
-				e.printStackTrace();
-				
+		try {
+
+			Collection<Declaration> declarations = gson.fromJson(new FileReader(modulepath), declarationsType);
+			for (Declaration declaration : declarations) {
+				insertDeclaration(graphDb, packagenode, declaration);
 			}
+
+		} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+
+			e.printStackTrace();
+
+		}
 	}
 
 	public static void insertDeclaration(GraphDatabaseService graphDb, Node packagenode, Declaration declaration) {
