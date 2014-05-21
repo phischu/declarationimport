@@ -2,8 +2,7 @@ package declarationimport;
 
 public class Symbol {
 	
-	public String symbolname;
-	public String symbolmodule;
-	public String symbolgenre;
+	public Origin origin;
+	public String entity;
 
 }

@@ -85,13 +85,48 @@ public class Main {
 
 			ArrayList<Declaration> declarations;
 			try {
+				
 				declarations = gson.fromJson(new FileReader(modulepath), declarationsType);
-	            System.out.println(declarations);
+	            for(Declaration declaration : declarations){
+	            	insertDeclaration(graphDb, packagenode, declaration);
+	            }
+	            
 			} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+				
 				e.printStackTrace();
+				
 			}
+	}
 
+	public static void insertDeclaration(GraphDatabaseService graphDb, Node packagenode, Declaration declaration) {
+		
+		Node declarationnode = graphDb.createNode(Labels.Declaration);
+		packagenode.createRelationshipTo(declarationnode, RelationshipTypes.DECLARATION);
+		declarationnode.setProperty("declarationast", declaration.declarationast);
+		
+		for(Symbol usedsymbol : declaration.usedsymbols){
+			Node usedsymbolnode = createSymbolNode(graphDb, usedsymbol);
+			declarationnode.createRelationshipTo(usedsymbolnode, RelationshipTypes.MENTIONEDSYMBOL);
+		}
+		
+		for(Symbol declaredsymbol : declaration.declaredsymbols){
+			Node declaredsymbolnode = createSymbolNode(graphDb, declaredsymbol);
+			declarationnode.createRelationshipTo(declaredsymbolnode, RelationshipTypes.DECLAREDSYMBOL);
+		}
 		
 	}
+
+	public static Node createSymbolNode(GraphDatabaseService graphDb, Symbol symbol) {
+		
+	    Node symbolnode = graphDb.createNode(Labels.Symbol);
+	    symbolnode.setProperty("symbolgenre", symbol.entity);
+	    symbolnode.setProperty("symbolmodule", symbol.origin.module);
+	    symbolnode.setProperty("symbolname", symbol.origin.name);
+	    
+	    return symbolnode;
+	    
+	}
+	
+	
 
 }
