@@ -118,58 +118,28 @@ public class Main {
 	}
 
 	public static Node createSymbolNode(GraphDatabaseService graphDb, Symbol symbol) {
-		
+
 		ResourceIterable<Node> potentialsymbolnodes = graphDb.findNodesByLabelAndProperty(Labels.Symbol, "symbolname", symbol.origin.name);
-		Iterator<Node> fittingsymbolnodes = IteratorUtils.filteredIterator(
-				potentialsymbolnodes.iterator(), 
-				PredicateUtils.andPredicate(new GenreIs(symbol.entity),new ModuleIs(symbol.origin.module)));
-		
-		if(fittingsymbolnodes.hasNext()){
-			
-			return fittingsymbolnodes.next();
-			
-		}else{
-			
-		    Node symbolnode = graphDb.createNode(Labels.Symbol);
-		    symbolnode.setProperty("symbolgenre", symbol.entity);
-		    symbolnode.setProperty("symbolmodule", symbol.origin.module);
-		    symbolnode.setProperty("symbolname", symbol.origin.name);
-		    
-		    return symbolnode;
-			
-		}
-	    
-	}
 
-	public static class GenreIs implements Predicate<Node> {
+		for (Node potentialsymbolnode : potentialsymbolnodes) {
 
-		public String symbolgenre;
+			if (potentialsymbolnode.getProperty("symbolgenre").equals(symbol.entity) &&
+				potentialsymbolnode.getProperty("symbolmodule").equals(symbol.origin.module)) {
+				return potentialsymbolnode;
+			}
 
-		GenreIs(String symbolgenre) {
-			this.symbolgenre = symbolgenre;
 		}
 
-		public boolean evaluate(Node symbolnode) {
-			return symbolnode.getProperty("symbolgenre") == symbolgenre;
-		}
+		Node symbolnode = graphDb.createNode(Labels.Symbol);
+		symbolnode.setProperty("symbolgenre", symbol.entity);
+		symbolnode.setProperty("symbolmodule", symbol.origin.module);
+		symbolnode.setProperty("symbolname", symbol.origin.name);
+
+		return symbolnode;
 
 	}
-
-	public static class ModuleIs implements Predicate<Node> {
-
-		public String symbolmodule;
-
-		ModuleIs(String symbolmodule) {
-			this.symbolmodule = symbolmodule;
-		}
-
-		public boolean evaluate(Node symbolnode) {
-			return symbolnode.getProperty("symbolmodule") == symbolmodule;
-		}
-
-	}
-	
 
 }
+
 
 
