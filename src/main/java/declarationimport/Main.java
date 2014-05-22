@@ -100,7 +100,7 @@ public class Main {
 		packagenode.createRelationshipTo(declarationnode, RelationshipTypes.DECLARATION);
 		declarationnode.setProperty("declarationast", declaration.declarationast);
 		
-		for(Symbol usedsymbol : declaration.usedsymbols){
+		for(Symbol usedsymbol : declaration.mentionedsymbols){
 			Node usedsymbolnode = createSymbolNode(graphDb, usedsymbol);
 			declarationnode.createRelationshipTo(usedsymbolnode, RelationshipTypes.MENTIONEDSYMBOL);
 		}
