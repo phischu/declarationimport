@@ -2,10 +2,12 @@ package declarationimport;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.commons.io.*;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.collections4.*;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -117,15 +119,57 @@ public class Main {
 
 	public static Node createSymbolNode(GraphDatabaseService graphDb, Symbol symbol) {
 		
-	    Node symbolnode = graphDb.createNode(Labels.Symbol);
-	    symbolnode.setProperty("symbolgenre", symbol.entity);
-	    symbolnode.setProperty("symbolmodule", symbol.origin.module);
-	    symbolnode.setProperty("symbolname", symbol.origin.name);
-	    
-	    return symbolnode;
+		ResourceIterable<Node> potentialsymbolnodes = graphDb.findNodesByLabelAndProperty(Labels.Symbol, "symbolname", symbol.origin.name);
+		Iterator<Node> fittingsymbolnodes = IteratorUtils.filteredIterator(
+				potentialsymbolnodes.iterator(), 
+				PredicateUtils.andPredicate(new GenreIs(symbol.entity),new ModuleIs(symbol.origin.module)));
+		
+		if(fittingsymbolnodes.hasNext()){
+			
+			return fittingsymbolnodes.next();
+			
+		}else{
+			
+		    Node symbolnode = graphDb.createNode(Labels.Symbol);
+		    symbolnode.setProperty("symbolgenre", symbol.entity);
+		    symbolnode.setProperty("symbolmodule", symbol.origin.module);
+		    symbolnode.setProperty("symbolname", symbol.origin.name);
+		    
+		    return symbolnode;
+			
+		}
 	    
 	}
-	
+
+	public static class GenreIs implements Predicate<Node> {
+
+		public String symbolgenre;
+
+		GenreIs(String symbolgenre) {
+			this.symbolgenre = symbolgenre;
+		}
+
+		public boolean evaluate(Node symbolnode) {
+			return symbolnode.getProperty("symbolgenre") == symbolgenre;
+		}
+
+	}
+
+	public static class ModuleIs implements Predicate<Node> {
+
+		public String symbolmodule;
+
+		ModuleIs(String symbolmodule) {
+			this.symbolmodule = symbolmodule;
+		}
+
+		public boolean evaluate(Node symbolnode) {
+			return symbolnode.getProperty("symbolmodule") == symbolmodule;
+		}
+
+	}
 	
 
 }
+
+
