@@ -1,20 +1,15 @@
 package declarationimport;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.apache.commons.io.*;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.collections4.*;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.*;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
