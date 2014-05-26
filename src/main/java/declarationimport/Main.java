@@ -20,7 +20,9 @@ import com.google.gson.reflect.TypeToken;
 
 public class Main {
 	
-	private static final String DB_PATH = "data";
+	public static final String DB_PATH = "data";
+	public static final String PACKAGEINFO_PATH = "packageinfo";
+	
 	
 	public enum Labels implements Label
 	{
@@ -38,32 +40,47 @@ public class Main {
 
 	public static void main(String[] args){
 		
-		GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
+        Gson gson = new Gson();
 		
-		Transaction tx = graphDb.beginTx();
-		 try
-		 {
-			 insertPackage(graphDb,"containers","0.5.5.1");
-			 			 
-		     tx.success();
-		 }
-		 finally
-		 {
-		     tx.close();
-		 }
+		Type packagesType = new TypeToken<Collection<Package>>(){}.getType();
 
-		graphDb.shutdown();
+		try {
+
+			Collection<Package> packages = gson.fromJson(new FileReader(PACKAGEINFO_PATH), packagesType);
+			for (Package packag : packages) {
+				
+				GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
+				
+				Transaction tx = graphDb.beginTx();
+				 try
+				 {
+					 insertPackage(graphDb,packag);
+					 			 
+				     tx.success();
+				 }
+				 finally
+				 {
+				     tx.close();
+                     graphDb.shutdown();
+				 }
+			}
+
+		} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+
+			e.printStackTrace();
+
+		}
 		
 		System.out.println("success");
 	}
 	
-	public static void insertPackage(GraphDatabaseService graphDb,String packagename,String versionnumber){
+	public static void insertPackage(GraphDatabaseService graphDb,Package packag){
 		
 	    Node packagenode = graphDb.createNode(Labels.Package);
-	    packagenode.setProperty("packagename",packagename);
-	    packagenode.setProperty("versionnumber",versionnumber);
+	    packagenode.setProperty("packagename",packag.packagename);
+	    packagenode.setProperty("versionnumber",packag.packageversion);
 		
-		File packagepath = new File("packages/" + packagename + "-" + versionnumber + "/");
+		File packagepath = new File("packages/" + packag.packagename + "-" + packag.packageversion + "/");
 		
 		Collection<File> modulefiles =
 				FileUtils.listFiles(packagepath,new SuffixFileFilter(".declarations"),TrueFileFilter.INSTANCE);
