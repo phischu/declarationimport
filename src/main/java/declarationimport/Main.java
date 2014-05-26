@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.*;
+import org.neo4j.graphdb.schema.Schema;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -39,39 +40,46 @@ public class Main {
 	    DECLAREDSYMBOL
 	}
 
-	public static void main(String[] args){
-		
-        Gson gson = new Gson();
-		
-		Type packagesType = new TypeToken<Collection<Package>>(){}.getType();
+	public static void main(String[] args) {
 
+		GraphDatabaseService graphDb = new GraphDatabaseFactory()
+				.newEmbeddedDatabase(DB_PATH);
+
+		Transaction tx = graphDb.beginTx();
 		try {
 
-			Collection<Package> packages = gson.fromJson(new FileReader(PACKAGEINFO_PATH), packagesType);
-			for (Package packag : packages) {
-				
-				GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
-				
-				Transaction tx = graphDb.beginTx();
-				 try
-				 {
-					 insertPackage(graphDb,packag);
-					 			 
-				     tx.success();
-				 }
-				 finally
-				 {
-				     tx.close();
-                     graphDb.shutdown();
-				 }
-			}
+			graphDb.schema().indexFor(Labels.Package).on("packagename").create();
+			graphDb.schema().indexFor(Labels.Symbol).on("symbolname").create();
 
-		} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
-
-			e.printStackTrace();
-
+			tx.success();
+		} finally {
+			tx.close();
 		}
-		
+
+		Gson gson = new Gson();
+
+		Type packagesType = new TypeToken<Collection<Package>>() {}.getType();
+
+		try {
+			Collection<Package> packages;
+			packages = gson.fromJson(new FileReader(PACKAGEINFO_PATH), packagesType);
+			for (Package packag : packages) {
+
+				tx = graphDb.beginTx();
+				try {
+					insertPackage(graphDb, packag);
+
+					tx.success();
+				} finally {
+					tx.close();
+				}
+			}
+		} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		graphDb.shutdown();
+
 		System.out.println("success");
 	}
 	
@@ -88,6 +96,8 @@ public class Main {
 		}
 
 		File packagepath = new File("packages/" + packag.packagename + "-" + packag.packageversion + "/");
+		
+		if(!packagepath.exists()) return;
 		
 		Collection<File> modulefiles =
 				FileUtils.listFiles(packagepath,new SuffixFileFilter(".declarations"),TrueFileFilter.INSTANCE);
