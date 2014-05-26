@@ -33,6 +33,7 @@ public class Main {
 	
 	private static enum RelationshipTypes implements RelationshipType
 	{
+		DEPENDENCY,
 	    DECLARATION,
 	    MENTIONEDSYMBOL,
 	    DECLAREDSYMBOL
@@ -77,6 +78,14 @@ public class Main {
 	public static void insertPackage(GraphDatabaseService graphDb,Package packag){
 		
 		Node packagenode = createPackageNode(graphDb, packag);
+		
+		for(Dependency dependency : packag.dependencies){
+			
+			Node dependencynode = createPackageNode(graphDb,new Package(dependency.dependencyname,dependency.dependencyversion));
+			
+			packagenode.createRelationshipTo(dependencynode, RelationshipTypes.DEPENDENCY);
+			
+		}
 
 		File packagepath = new File("packages/" + packag.packagename + "-" + packag.packageversion + "/");
 		
@@ -90,6 +99,16 @@ public class Main {
 	}
 	
 	public static Node createPackageNode(GraphDatabaseService graphDb,Package packag){
+		
+		ResourceIterable<Node> potentialpackagenodes = graphDb.findNodesByLabelAndProperty(Labels.Package, "packagename", packag.packagename);
+
+		for (Node potentialpackagenode : potentialpackagenodes) {
+
+			if (potentialpackagenode.getProperty("packageversion").equals(packag.packageversion)) {
+				return potentialpackagenode;
+			}
+
+		}
 		
 		Node packagenode = graphDb.createNode(Labels.Package);
 	    packagenode.setProperty("packagename",packag.packagename);
