@@ -112,7 +112,7 @@ public class Main {
 		
 		Node packagenode = graphDb.createNode(Labels.Package);
 	    packagenode.setProperty("packagename",packag.packagename);
-	    packagenode.setProperty("versionnumber",packag.packageversion);
+	    packagenode.setProperty("packageversion",packag.packageversion);
 	    
 	    return packagenode;
 		
