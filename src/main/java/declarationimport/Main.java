@@ -76,10 +76,8 @@ public class Main {
 	
 	public static void insertPackage(GraphDatabaseService graphDb,Package packag){
 		
-	    Node packagenode = graphDb.createNode(Labels.Package);
-	    packagenode.setProperty("packagename",packag.packagename);
-	    packagenode.setProperty("versionnumber",packag.packageversion);
-		
+		Node packagenode = createPackageNode(graphDb, packag);
+
 		File packagepath = new File("packages/" + packag.packagename + "-" + packag.packageversion + "/");
 		
 		Collection<File> modulefiles =
@@ -88,6 +86,16 @@ public class Main {
 		for(File modulefile : modulefiles){
 			insertModule(graphDb,packagenode,modulefile);
 		}
+		
+	}
+	
+	public static Node createPackageNode(GraphDatabaseService graphDb,Package packag){
+		
+		Node packagenode = graphDb.createNode(Labels.Package);
+	    packagenode.setProperty("packagename",packag.packagename);
+	    packagenode.setProperty("versionnumber",packag.packageversion);
+	    
+	    return packagenode;
 		
 	}
 	
