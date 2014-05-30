@@ -96,7 +96,7 @@ public class Main {
 			
 		}
 
-		File packagepath = new File(PREFIX + "packages/" + packag.packagename + "-" + packag.packageversion + "/");
+		File packagepath = new File(PREFIX + "packages/lib/" + packag.packagename + "-" + packag.packageversion + "/");
 		
 		if(!packagepath.exists()) return;
 		
