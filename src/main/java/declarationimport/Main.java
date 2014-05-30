@@ -96,7 +96,7 @@ public class Main {
 			
 		}
 
-		File packagepath = new File(PREFIX + "packages/lib/" + packag.packagename + "-" + packag.packageversion + "/");
+		File packagepath = new File(PREFIX + "packages/lib/x86_64-linux-haskell-declarations-0.1/" + packag.packagename + "-" + packag.packageversion + "/");
 		
 		if(!packagepath.exists()) return;
 		
