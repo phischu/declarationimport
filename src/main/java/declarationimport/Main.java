@@ -86,6 +86,8 @@ public class Main {
 	
 	public static void insertPackage(GraphDatabaseService graphDb,Package packag){
 		
+		System.out.println(packag.packagename + "-" + packag.packageversion);
+		
 		Node packagenode = createPackageNode(graphDb, packag);
 		
 		for(Dependency dependency : packag.dependencies){
