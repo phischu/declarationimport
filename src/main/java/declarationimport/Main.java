@@ -21,8 +21,9 @@ import com.google.gson.reflect.TypeToken;
 
 public class Main {
 	
-	public static final String DB_PATH = "data";
-	public static final String PACKAGEINFO_PATH = "packageinfo";
+	public static final String PREFIX = "/home/pschuster/Projects/symbols/";
+	public static final String DB_PATH = PREFIX + "data";
+	public static final String PACKAGEINFO_PATH = PREFIX + "packageinfo";
 	
 	
 	public enum Labels implements Label
@@ -95,7 +96,7 @@ public class Main {
 			
 		}
 
-		File packagepath = new File("packages/" + packag.packagename + "-" + packag.packageversion + "/");
+		File packagepath = new File(PREFIX + "packages/" + packag.packagename + "-" + packag.packageversion + "/");
 		
 		if(!packagepath.exists()) return;
 		
