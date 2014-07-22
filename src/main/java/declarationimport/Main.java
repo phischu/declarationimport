@@ -36,6 +36,7 @@ public class Main {
 	private static enum RelationshipTypes implements RelationshipType
 	{
 		DEPENDENCY,
+		NEXTVERSION,
 	    DECLARATION,
 	    MENTIONEDSYMBOL,
 	    DECLAREDSYMBOL
@@ -95,6 +96,14 @@ public class Main {
 			Node dependencynode = createPackageNode(graphDb,new Package(dependency.dependencyname,dependency.dependencyversion));
 			
 			packagenode.createRelationshipTo(dependencynode, RelationshipTypes.DEPENDENCY);
+			
+		}
+		
+		if(packag.nextversion != null) {
+			
+			Node nextversionnode = createPackageNode(graphDb,new Package(packag.packagename,packag.nextversion));
+			
+			packagenode.createRelationshipTo(nextversionnode, RelationshipTypes.NEXTVERSION);
 			
 		}
 

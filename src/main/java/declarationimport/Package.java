@@ -9,9 +9,11 @@ public class Package {
 		this.packagename = packagename;
 		this.packageversion = packageversion;
 		this.dependencies = Collections.emptyList();
+		this.nextversion = null;
 	}
 	public String packagename;
 	public String packageversion;
 	public Collection<Dependency> dependencies;
+	public String nextversion;
 
 }
