@@ -30,7 +30,8 @@ public class Main {
 	{
 		Package,
 		Declaration,
-		Symbol
+		Symbol,
+		TypeSignature
     }
 	
 	private static enum RelationshipTypes implements RelationshipType
@@ -162,7 +163,12 @@ public class Main {
 
 	public static void insertDeclaration(GraphDatabaseService graphDb, Node packagenode, Declaration declaration) {
 		
-		Node declarationnode = graphDb.createNode(Labels.Declaration);
+		Node declarationnode = graphDb.createNode();
+		if(declaration.genre.equals("TypeSignature")){
+			declarationnode.addLabel(Labels.TypeSignature);
+		}else{
+			declarationnode.addLabel(Labels.Declaration);
+		}
 		packagenode.createRelationshipTo(declarationnode, RelationshipTypes.DECLARATION);
 		declarationnode.setProperty("declarationast", declaration.declarationast);
 		declarationnode.setProperty("declarationgenre", declaration.genre);
