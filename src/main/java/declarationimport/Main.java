@@ -165,6 +165,7 @@ public class Main {
 		Node declarationnode = graphDb.createNode(Labels.Declaration);
 		packagenode.createRelationshipTo(declarationnode, RelationshipTypes.DECLARATION);
 		declarationnode.setProperty("declarationast", declaration.declarationast);
+		declarationnode.setProperty("declarationgenre", declaration.genre);
 		
 		for(Symbol usedsymbol : declaration.mentionedsymbols){
 			Node usedsymbolnode = createSymbolNode(graphDb, usedsymbol);
