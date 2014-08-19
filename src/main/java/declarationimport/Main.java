@@ -10,7 +10,6 @@ import java.util.Collection;
 
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.*;
-import org.neo4j.graphdb.schema.Schema;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -102,9 +101,10 @@ public class Main {
 		
 		if(packag.nextversion != null) {
 			
-			Node nextversionnode = createPackageNode(graphDb,new Package(packag.packagename,packag.nextversion));
+			Node nextversionnode = createPackageNode(graphDb,new Package(packag.packagename,packag.nextversion.nextversion));
 			
-			packagenode.createRelationshipTo(nextversionnode, RelationshipTypes.NEXTVERSION);
+			Relationship nextVersionRelationship =  packagenode.createRelationshipTo(nextversionnode, RelationshipTypes.NEXTVERSION);
+			nextVersionRelationship.setProperty("change", packag.nextversion.change);
 			
 		}
 
@@ -112,7 +112,7 @@ public class Main {
 		
 		if(!packagepath.exists()) return;
 		
-		Collection<File> modulefiles =
+		Collection<File> modulefiles = 
 				FileUtils.listFiles(packagepath,new SuffixFileFilter(".declarations"),TrueFileFilter.INSTANCE);
 		
 		for(File modulefile : modulefiles){
@@ -164,14 +164,14 @@ public class Main {
 	public static void insertDeclaration(GraphDatabaseService graphDb, Node packagenode, Declaration declaration) {
 		
 		Node declarationnode = graphDb.createNode();
-		if(declaration.genre.equals("TypeSignature")){
+		if(declaration.declarationgenre.equals("TypeSignature")){
 			declarationnode.addLabel(Labels.TypeSignature);
 		}else{
 			declarationnode.addLabel(Labels.Declaration);
 		}
 		packagenode.createRelationshipTo(declarationnode, RelationshipTypes.DECLARATION);
 		declarationnode.setProperty("declarationast", declaration.declarationast);
-		declarationnode.setProperty("declarationgenre", declaration.genre);
+		declarationnode.setProperty("declarationgenre", declaration.declarationgenre);
 		
 		for(Symbol usedsymbol : declaration.mentionedsymbols){
 			Node usedsymbolnode = createSymbolNode(graphDb, usedsymbol);

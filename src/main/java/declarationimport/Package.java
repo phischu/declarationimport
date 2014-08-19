@@ -14,6 +14,6 @@ public class Package {
 	public String packagename;
 	public String packageversion;
 	public Collection<Dependency> dependencies;
-	public String nextversion;
+	public NextVersion nextversion;
 
 }
