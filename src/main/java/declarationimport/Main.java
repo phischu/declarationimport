@@ -187,12 +187,12 @@ public class Main {
 
 	public static Node createSymbolNode(GraphDatabaseService graphDb, Symbol symbol) {
 
-		ResourceIterable<Node> potentialsymbolnodes = graphDb.findNodesByLabelAndProperty(Labels.Symbol, "symbolname", symbol.origin.name);
+		ResourceIterable<Node> potentialsymbolnodes = graphDb.findNodesByLabelAndProperty(Labels.Symbol, "symbolname", symbol.name);
 
 		for (Node potentialsymbolnode : potentialsymbolnodes) {
 
 			if (potentialsymbolnode.getProperty("symbolgenre").equals(symbol.entity) &&
-				potentialsymbolnode.getProperty("symbolmodule").equals(symbol.origin.module)) {
+				potentialsymbolnode.getProperty("symbolmodule").equals(symbol.module)) {
 				return potentialsymbolnode;
 			}
 
@@ -200,8 +200,8 @@ public class Main {
 
 		Node symbolnode = graphDb.createNode(Labels.Symbol);
 		symbolnode.setProperty("symbolgenre", symbol.entity);
-		symbolnode.setProperty("symbolmodule", symbol.origin.module);
-		symbolnode.setProperty("symbolname", symbol.origin.name);
+		symbolnode.setProperty("symbolmodule", symbol.module);
+		symbolnode.setProperty("symbolname", symbol.name);
 
 		return symbolnode;
 
