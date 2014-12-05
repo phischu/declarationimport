@@ -39,7 +39,8 @@ public class Main {
 		NEXTVERSION,
 	    DECLARATION,
 	    MENTIONEDSYMBOL,
-	    DECLAREDSYMBOL
+	    DECLAREDSYMBOL,
+	    INSTALLATION
 	}
 
 	public static void main(String[] args) {
@@ -87,13 +88,15 @@ public class Main {
 	
 	public static void insertPackage(GraphDatabaseService graphDb,Package packag){
 		
-		System.out.println(packag.packagename + "-" + packag.packageversion);
+		final String packageid = packag.packagename + "-" + packag.packageversion;
 		
-		Node packagenode = createPackageNode(graphDb, packag);
+		System.out.println(packageid);
+		
+		Node packagenode = createPackageNode(graphDb, packag.packagename, packag.packageversion);
 		
 		for(Dependency dependency : packag.dependencies){
 			
-			Node dependencynode = createPackageNode(graphDb,new Package(dependency.dependencyname,dependency.dependencyversion));
+			Node dependencynode = createPackageNode(graphDb,dependency.dependencyname,dependency.dependencyversion);
 			
 			packagenode.createRelationshipTo(dependencynode, RelationshipTypes.DEPENDENCY);
 			
@@ -101,14 +104,14 @@ public class Main {
 		
 		if(packag.nextversion != null) {
 			
-			Node nextversionnode = createPackageNode(graphDb,new Package(packag.packagename,packag.nextversion.nextversion));
+			Node nextversionnode = createPackageNode(graphDb,packag.packagename,packag.nextversion.nextversion);
 			
 			Relationship nextVersionRelationship =  packagenode.createRelationshipTo(nextversionnode, RelationshipTypes.NEXTVERSION);
 			nextVersionRelationship.setProperty("change", packag.nextversion.change);
 			
 		}
 
-		File packagepath = new File(PREFIX + "packages/lib/x86_64-linux-haskell-declarations-0.1/" + packag.packagename + "-" + packag.packageversion + "/");
+		File packagepath = new File(PREFIX + "packages/lib/x86_64-linux-haskell-declarations-0.1/" + packageid + "/");
 		
 		if(!packagepath.exists()) return;
 		
@@ -119,23 +122,47 @@ public class Main {
 			insertModule(graphDb,packagenode,modulefile);
 		}
 		
+		insertInstallation(graphDb,packagenode,packageid);
+		
 	}
 	
-	public static Node createPackageNode(GraphDatabaseService graphDb,Package packag){
+	private static void insertInstallation(GraphDatabaseService graphDb, Node packagenode, String packageid) {
 		
-		ResourceIterable<Node> potentialpackagenodes = graphDb.findNodesByLabelAndProperty(Labels.Package, "packagename", packag.packagename);
+		Gson gson = new Gson();
+
+		Type dependenciesType = new TypeToken<Collection<Dependency>>() {}.getType();
+		
+		String installationpath = PREFIX + "installations/" + packageid;
+
+		try {
+			Collection<Dependency> dependencies = gson.fromJson(new FileReader(installationpath), dependenciesType);
+
+			for(Dependency dependency : dependencies){
+				
+				Node installationNode = createPackageNode(graphDb, dependency.dependencyname, dependency.dependencyversion);
+				packagenode.createRelationshipTo(installationNode, RelationshipTypes.INSTALLATION);
+				
+			}
+		} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+			e.printStackTrace();
+		}		
+	}
+
+	public static Node createPackageNode(GraphDatabaseService graphDb,String packagename,String packageversion){
+		
+		ResourceIterable<Node> potentialpackagenodes = graphDb.findNodesByLabelAndProperty(Labels.Package, "packagename", packagename);
 
 		for (Node potentialpackagenode : potentialpackagenodes) {
 
-			if (potentialpackagenode.getProperty("packageversion").equals(packag.packageversion)) {
+			if (potentialpackagenode.getProperty("packageversion").equals(packageversion)) {
 				return potentialpackagenode;
 			}
 
 		}
 		
 		Node packagenode = graphDb.createNode(Labels.Package);
-	    packagenode.setProperty("packagename",packag.packagename);
-	    packagenode.setProperty("packageversion",packag.packageversion);
+	    packagenode.setProperty("packagename",packagename);
+	    packagenode.setProperty("packageversion",packageversion);
 	    
 	    return packagenode;
 		
